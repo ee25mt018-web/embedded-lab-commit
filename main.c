@@ -14,22 +14,34 @@
 #define STCURRENT           (*((volatile uint32_t *)0xE000E018))
 
 #define RED_LED     (1 << 1)
+#define BLUE_LED    (1 << 2 )
+#define SW1         (1 << 4 )
 
 int main(void) {
     SYSCTL_RCGC2_R |= 0x20;
 
     GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
-    GPIO_PORTF_CR_R |= RED_LED;
-    GPIO_PORTF_DIR_R |= RED_LED;
-    GPIO_PORTF_DEN_R |= RED_LED;
+    GPIO_PORTF_CR_R |= (RED_LED | BLUE_LED | SW1);
+    GPIO_PORTF_DIR_R |= (RED_LED | BLUE_LED);
+    GPIO_PORTF_DIR_R &= ~ (SW1);
+    GPIO_PORTF_DEN_R |= (RED_LED | SW1 | BLUE_LED);
+    GPIO_PORTF_PUR_R |= (SW1);
 
 
-    STRELOAD = 8000000-1;
+
+    STRELOAD = 16000000-1;
     STCURRENT = 0;
     STCTRL = (1 << 2) | (1 << 0);
 
     while (1) {
-        while ((STCTRL & (1 << 16)) == 0){ };
+        if(STCTRL & (1 << 16)){
         GPIO_PORTF_DATA_R ^= RED_LED;
-    }
+        }
+        if((GPIO_PORTF_DATA_R & SW1) == 0){
+                 GPIO_PORTF_DATA_R |= BLUE_LED;
+             }
+             else{
+                 GPIO_PORTF_DATA_R &= ~ BLUE_LED;
+         }
+}
 }
