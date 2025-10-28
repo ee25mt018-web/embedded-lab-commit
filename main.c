@@ -1,26 +1,19 @@
-#include<stdint.h>
-int series_sum(int k)
-{
-    int a=0;
-    int b=1;
-    int c=3;
-    int d=8;
-    int e=5;
-    if(k>0)
-    {
-        return k + series_sum(k-1);
-    }
-    else
-    {
-
-    }
-}
+#include <stdint.h>
+#include "uart_ee627.h"
 
 int main(void)
 {
-	int s1,s2,s3;
-	int k=8;
-	s1= series_sum(k);
-	while(1);
+    UART_setup();
 
+    while (1)
+    {
+        UART_send(0x55);
+
+        int i;
+        for (i = 0; i < 1000000; i++) { }  // delay loop
+
+        UART_send(0xAA);
+
+        for (i = 0; i < 1000000; i++) { }  // delay loop
+    }
 }
